@@ -1,0 +1,29 @@
+{% extends 'uniqueref/base_uniqueref.html' %}
+{% block title %}Welcome!{% endblock %}
+{% block base_content %}
+	{% if user.is_authenticated %}
+		<table>
+			<tr>
+				<td width="15%"></td>
+				<td width="70%">
+					<h2> Hi {{ user.first_name }}</h2>
+					<p>good to see you back!<br>Use the menu on the left to move around through this application. In case you found yourself lost in the deepweb, remember there's always a way to warp yourself back to the surface (click the link to the <a href="/uniqueref/help">documentation</a>)</p>
+				</td>
+				<td width="15%"></td>
+			</tr>
+		</table>
+    	{% else %}
+		<table>
+			<tr>
+				<td width="15%"></td>
+				<td width="70%">
+					<h2> Welcome to Phenosaurus </h2>
+					<p>If this is your first time here, perhaps you want to have a look at <a href="/uniqueref/help">the documentation</a> or use the menu on the left to browse through this application.</p>
+					<p>Don't hesitate to <a href="/contact">email</a> us if you have any questions about the use of Phenosaurus or are interested in visualizing your own data. </p>
+				</td>
+				<td width="15%"></td>
+			</tr>
+		</table>
+		{% block content %}{% endblock %}
+	{% endif %}
+{% endblock %}

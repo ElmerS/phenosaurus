@@ -1,0 +1,30 @@
+{% extends 'uniqueref/base_uniqueref.html' %}
+{% block title %}Summary Sequence Statistics Sceemn{% endblock %}
+{% block base_content %}
+    <form action="/uniqueref/fixedscreenseqsummary/" method="get">
+		{% csrf_token %}
+		<h1> Comprehensive Summary of Sequence Statistics </h1>
+		<hr>
+		<table>
+            <tr>
+                <td width="25%"></td>
+                <td width="50%" align="center">Select Screen</td>
+                <td width="25%"></td>
+                <td>
+            </tr>
+            <tr>
+                <td width="25%"></td>
+                <td width="50%" align="center">{{ filter.screen }}</td>
+                <td width="25%"></td>
+            </tr>
+        </table>
+        <hr>
+        <input type="submit" value="Submit" />
+        </form>
+    <p></p>
+
+        {{ the_div|safe }}
+	    {{ the_script|safe }}
+        {{ data|safe }}
+
+{% endblock %}

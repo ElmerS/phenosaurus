@@ -1,0 +1,46 @@
+{% extends 'uniqueref/base_uniqueref.html' %}
+{% block title %}BubblePlot for Positive Selection Screen{% endblock %}
+{% block base_content %}
+    <form action="/uniqueref/pssbubbleplot/" method="get">
+		{% csrf_token %}
+		<h1> BubblePlot for Positive Selection Screen </h1>
+		<table>
+            <tr>
+                <td width="15%"></td>
+                <td width="15%">Select Screen</td>
+                <td width="15%">{{ filter.pvalue.label_tag }}</td>
+                <td width="15%">{{ filter.sepcolor.label_tag }}</td>
+                <td width="15%">{{ filter.scaling.label_tag }}</td>
+                <td width="15%">{{ filter.oca.label_tag }}</td>
+                <td width="15%">{{ filter.sag.label_tag }}</td>
+                <td width="15%">{{ filter.textsize.label_tag }}</td>
+                <td width="15%">{{ filter.showtable.label_tag }}</td>
+                <td width="10%"></td>
+                <td>
+            </tr>
+            <tr>
+                <td width="15%"></td>
+                <td width="15%">{{ filter.screen }}</td>
+                <td width="15%">{{ filter.pvalue }}</td>
+                <td width="15%">{{ filter.sepcolor }}</td>
+                <td width="15%">{{ filter.scaling }}</td>
+                <td width="15%">{{ filter.oca }}</td>
+                <td width="15%">{{ filter.sag }}</td>
+                <td width="15%">{{ filter.textsize }}</td>
+                <td width="15%">{{ filter.showtable }}</td>
+                <td width="10%"></td>
+            </tr>
+        </table>
+        <input type="submit" value="Submit" />
+        </form>
+	<p>
+	{{the_div|safe}}
+	{{the_script|safe}}
+    <table>
+        <tr>
+            <td width="15%"></td>
+            <td width="70%">{{data | safe}}</td>
+            <td width="15%"></td>
+        </tr>
+    </table>
+{% endblock %}

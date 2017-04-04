@@ -1,0 +1,18 @@
+{% extends 'uniqueref/base_uniqueref.html' %}
+{% block title %}List all Screens in database{% endblock %}
+{% block base_content %}
+    <table>
+        <tr>
+            <td><h1>Intracellular Phenotype Screens</h1></tr>
+        </tr>
+        <tr>
+            <td>{{ipdata | safe}}</td>
+        </tr
+        <tr>
+            <td><h1>Positive Selection Screens</h1></tr>
+        </tr>
+        <tr>
+            <td>{{psdata | safe}}</td>
+        </tr>
+    </table>
+{% endblock %}

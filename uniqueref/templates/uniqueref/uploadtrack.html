@@ -1,0 +1,33 @@
+{% extends 'uniqueref/base_uniqueref.html' %}
+{% block title %}Single Screen Fishtail Plot{% endblock %}
+{% block base_content %}
+
+        <form method="POST">
+            <table>
+                <tr>
+                    <td>{{ form.errors }}</td>
+                </tr>
+                <tr>
+                    <td>{{ form.name.label_tag }}</td>
+                </tr>
+                <tr>
+                    <td>{{ form.name }}</td>
+                </tr>
+                <tr>
+                    <td>{{ form.description.label_tag }}</td>
+                </tr>
+                <tr>
+                    <td>{{ form.description }}</td>
+                </tr>
+                <tr>
+                    <td>{{ form.genelist.label_tag }}</td>
+                </tr>
+                <tr>
+                    <td>{{ form.genelist }}</td>
+                </tr>
+            </table>
+            {{data|safe}}<br>
+            {% csrf_token %} 
+            <input type="submit" value="Store track">
+        </form>
+{% endblock %}

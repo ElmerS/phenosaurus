@@ -1,0 +1,18 @@
+{% extends 'uniqueref/base_uniqueref.html' %}
+{% block title %}Delete Custom Track{% endblock %}
+{% block base_content %}
+<form action="/uniqueref/deletetrack/" method="get">
+<table>	
+	<tr>
+		<td>{{ filter.customgenelistid.label_tag }}</td>
+	</td>
+	<tr>
+		<td>{{ filter.customgenelistid }}</td>
+	</td>
+	<tr>
+		<td><input type="submit" value="Submit" /></td>
+	</tr>
+</table>
+</form>
+{{data|safe}}
+{% endblock %}

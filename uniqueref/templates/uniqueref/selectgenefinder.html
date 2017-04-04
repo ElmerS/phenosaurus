@@ -1,0 +1,68 @@
+{% extends 'uniqueref/base_uniqueref.html' %}
+{% block title %}Gene Finder{% endblock %}
+{% block base_content %}
+    <h1> Gene Finder </h1>
+    <form action="/uniqueref/selectgenefinder/" method="get">
+		{% csrf_token %}
+		<hr>
+		<table>
+		    <tr>
+		        <td rowspan="9",width="10%"></td>
+		        <td width="20%">Select screen(s)</td>
+                <td width="20%">Seperate plots for each gene</td>
+                <td width="20%">{{ filter.highlightpss.label_tag }}</td>
+                <td width="20%"><i>The following options only apply if not drawing separate gene plots<br></i></td>
+                <td rowspan="9",width="10%"></td>
+            </tr>
+            <tr>
+                <td rowspan="6">{{ filter.screens }}</td>
+                <td width="20%">{{ filter.pgh }}</td>
+                <td width="20%">{{ filter.highlightpss }}</td>
+                <td width="20%">{{ filter.oca.label_tag }}</td>
+                
+            </tr>
+            <tr>  
+                <td width="20%">{{ filter.pvalue.label_tag }}</td>
+                <td width="20%">{{ filter.pvaluepss.label_tag }}</td>
+                <td width="20%">{{ filter.oca }}</td>
+                
+            </tr>
+            <tr>
+                <td width="20%">{{ filter.pvalue }}</td>
+                <td width="20%">{{ filter.pvaluepss}}</td>
+                <td width="20%">{{ filter.cb.label_tag }}</td>
+            </tr>
+            <tr>
+                <td width="20%"><i>Default p-value cutoff: 0.05</i></td>
+                <td width="20%"><i>Default p-value cutoff: 0.05</i></td>
+                <td width="20">{{ filter.cb }}</td>
+            </tr>
+            <tr>
+                <td width="20%"></td>
+                <td width="20%"></td>
+                <td width="20%">{{ filter.textsize.label_tag }}</td>
+            </tr>
+            <tr>
+                <td width="20%"></td>
+                <td width="20%"></td>
+                <td width="20%">{{ filter.textsize }}</td>
+            </tr>
+            <tr>
+                <td colspan="4", align="center">Select one or multiple genes</td>
+            </tr>
+            <tr>
+                <td colspan="4" style="border-top: 1px solid black; border-bottom: 1px solid black; padding-top: 5px; padding-bottom: 5px;", colspan="3"><div class="geneblock"><div class="genelist">{{ filter.genes }}</div></div></td>
+            </tr>
+        </table>
+        <hr>
+        <input type="submit" value="Submit" />
+        </form>
+    <table align="center">
+    <tr>
+    <td align="center">{{the_div|safe}}{{the_script|safe}}<td>
+    </tr>
+    <tr>
+    <td width="70%">{{data | safe}}</td>
+    </tr>
+    </table>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'uniqueref/base_uniqueref.html' %}
+{% block title %}Update History{% endblock %}
+{% block base_content %}
+    <table>
+        <tr>
+            <td><h1>Update History</h1></tr>
+        </tr>
+        <tr>
+	    <td>
+            {% for update in updates %}
+		<div>
+		<p><h2 style="font-family: 'Noto Sans', sans-serif; color: orange;">{{ update.version }} ({{ update.date}}) </h3></p>
+               	<p>{{ update.changes|safe|linebreaksbr }}</p>
+    		</div>
+	     {% endfor %}
+	     </td>
+        </tr>   
+    </table>
+{% endblock %}
