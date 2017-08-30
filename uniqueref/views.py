@@ -1,9 +1,12 @@
 # Import Django related libraries and functions
-from django.shortcuts import render, render_to_response
-from django.http import HttpResponse
-from django_pandas.io import read_frame
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, render_to_response, redirect
+from django.http import HttpResponse, HttpRequest
 from django.db.models import Q, Avg, Max, Min	# To find min and max values in QS
+from django.template import RequestContext
+from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.decorators import login_required
 from django import forms
 
 # Import other custom phenosaurus functions
@@ -14,11 +17,119 @@ import globalvars as gv
 import forms
 
 # Other general libraries
+from datetime import datetime
+import operator
+from .models import *
 import pandas as pd
 import numpy as np
 import operator
 from collections import namedtuple
 
+def home(request):
+    """Renders the home page."""
+    assert isinstance(request, HttpRequest)
+    context = {
+        'title':'Home page',
+        'year':datetime.now().year,
+    }
+    return render(request, 'uniqueref/home.html', context)
+
+
+def contact(request):
+    """Renders the contact page."""
+    assert isinstance(request, HttpRequest)
+    context = {
+	'title':'Contact',
+	'message':'Brummelkamp Lab',
+	'year':datetime.now().year,
+    }
+    return render(request, 'uniqueref/contact.html', context)
+
+
+def about(request):
+    """Renders the about page."""
+    assert isinstance(request, HttpRequest)
+    context = {
+	'title':'About',
+	'message':'Phenosaurus: a visualization platform for human haploid screens',
+	'descr':'<p>The Phenosaurus platform is under active development of the Brummelkamp group in the Netherlands Cancer Institute</p><p>Lead developer: Elmer Stickel e.stickel [at] nki.nl</p><p>Other people involved in the development of the platform: Vincent Blomen</p><p>We are here to help you with any support aspect of Phenosaurus, feel free to contact us by email. If you would like to obtain private access to the platform to upload your own data and/or access experimental analysis features, please contact us.</p><p><h3>Thanks to the developers of the following libraries:</h3><ul><li><a href="https://www.djangoproject.com/">Django</a></li><li><a href="http://bokeh.pydata.org/en/latest/">Bokeh</a></li><li><a href="http://gunicorn.org/">Gunicorn</a></li><li><a href="https://www.nginx.com/">Nginx</a></li></ul>',
+ 	'year':datetime.now().year,
+    }
+    return render(request, 'uniqueref/about.html', context)
+
+def updates(request):
+	"""Renders the updates page."""
+	assert isinstance(request, HttpRequest)
+	context = {
+		'updates': cf.get_qs_updates().order_by('-date'),
+		'year': datetime.now().year,
+	}
+	return render(request, "uniqueref/updates.html", context)
+
+def listgenes(request):
+	"""Renders the list of genes page."""
+	assert isinstance(request, HttpRequest)
+	context = {
+		'data': cf.list_genes(), # Call custom fucnction to draw the table
+		'year': datetime.now().year,
+	}
+	return render(request, "uniqueref/listgenes.html", context)
+
+def help(request):
+	return render(request, "uniqueref/help.html", {})
+
+@login_required
+def password_change(request):
+	"""The password change form"""
+	assert isinstance(request, HttpRequest)
+	if request.method == 'POST':
+		form = PasswordChangeForm(request.user, request.POST)
+		if form.is_valid():
+			user = form.save()
+			update_session_auth_hash(request, user)  # Important!
+			messages.success(request, 'Your password was successfully updated!')
+		else:
+			messages.error(request, 'Please correct the error below.')
+	else:
+		form = PasswordChangeForm(request.user)
+	context = {
+		'form': form,
+		'year': datetime.now().year,
+	}
+	return render(request, 'uniqueref/account/password_change.html', context)
+
+@login_required
+def edit_account(request):
+	"""The page where one can change some stuff related to their account"""
+	assert isinstance(request, HttpRequest)
+	context = {
+		'year': datetime.now().year,
+	}
+	return render(request, 'uniqueref/account/edit_account.html', context)
+
+def bad_request(request):
+    context= {'year': datetime.now().year}
+    response = render(request, 'uniqueref/error/400.html', context)
+    response.status_code = 400
+    return response
+
+def permission_denied(request):
+    context= {'year': datetime.now().year}
+    response = render(request, 'uniqueref/error/403.html', context)
+    response.status_code = 403
+    return response
+
+def page_not_found(request):
+    context= {'year': datetime.now().year}
+    response = render(request, 'uniqueref/error/404.html', context)
+    response.status_code = 404
+    return response
+
+def server_error(request):
+    context= {'year': datetime.now().year}
+    response = render(request, 'uniqueref/error/500.html', context)
+    response.status_code = 500
+    return response
 
 def get_authorized_screens(request):
 	# Because all data is public in this version of Phenosaurs, rather than quering the group ID's (gids) of the
@@ -28,21 +139,6 @@ def get_authorized_screens(request):
 	#gids = request.user.groups.values_list('id',flat=True)
 	authorized_screens = cf.get_authorized_screens_from_gids(gids)
 	return authorized_screens
-
-def landing(request):
-	return render(request, 'uniqueref/landing.html', {})
-
-def help(request):
-	return render(request, "uniqueref/help.html", {})
-
-def updates(request):
-	updates = cf.get_qs_updates().order_by('-date')
-	return render(request, "uniqueref/updates.html", {'updates':updates})
-
-def listgenes(request):
-	data = cf.list_genes() # Generate the table
-	return render(request, "uniqueref/listgenes.html", {'data':data})
-	
 
 def IPSFishtail(request):
 	# To render the form, send it the data to display the right options based on the user and use a GET request to obtain the results
@@ -58,10 +154,11 @@ def IPSFishtail(request):
 	sag = request.GET.get('sag','') 				# Do all genes need to be labeled?
 	showtable = request.GET.get('showtable', '')	# Whether a table should be drawn with raw values
 
+	context = {'filter': filter, 'year': datetime.now().year}
+
 	# First check if the user has given a screen as input, otherwise raise an error
 	if screenid=='':
-		error = gv.formerror
-		return render(request, "uniqueref/singlescreen.html", {'filter':filter, 'error':error})
+		context['error'] = gv.formerror
 
 	# Then check if screen requested by the user is actually a screen that he/she is allowed to see.
 	# This may seem a bit over the top but a user may have manually changed the URL and has entered a screenid in it of
@@ -72,23 +169,19 @@ def IPSFishtail(request):
 		pvcutoff = cf.set_pvalue(givenpvalue)		# Check the p-value given by the user
 		title = cf.title_single_screen_plot(screenid, authorized_screens)
 		df,legend = cf.generate_df_pips(screenid, pvcutoff, authorized_screens)
-		script,div = plots.fishtail(title, df, sag, oca, textsize, authorized_screens) # The script and div that is generated by the pfishtailplot function and contains all plotting info
+		context['script'], context['div'] = plots.fishtail(title, df, sag, oca, textsize, authorized_screens) # The script and div that is generated by the pfishtailplot function and contains all plotting info
 		# If the user want's to display a table of all datapoints call generate_ips_tophits function to make the table
 		if showtable == "on":
-			data = cf.generate_ips_tophits_list(df)
-			return render(request, "uniqueref/singlescreen.html", {'the_script':script, 'the_div':div, 'filter':filter, 'data':data})
-		else:
-			return render(request, "uniqueref/singlescreen.html", {'the_script':script, 'the_div':div, 'filter':filter})
+			context['negreg'], context['posreg'] = cf.generate_ips_tophits_list(df)
 
 	# If previous statement returns false, the user has manually modified the GET request in an illegal way. Serve an error.
 	elif (screenid in authorized_screens)==False:
-		error = gv.request_screen_authorization_error
-		return render(request, "uniqueref/singlescreen.html", {'filter':filter, 'error':error})
+		context['error'] = gv.request_screen_authorization_error
 
 	# And finally, just show the filter in case the user just arrived on this page and hasn't submitted the form yet
 	else:
-		error = gv.formerror
-		return render(request, "uniqueref/singlescreen.html", {'filter':filter, 'error':error})
+		context['error'] = gv.formerror
+	return render(request, "uniqueref/singlescreen.html", context)
 
 
 def opengenefinder(request):
@@ -102,12 +195,11 @@ def opengenefinder(request):
 	screenids = request.GET.getlist('screens', '') 		# The screens for which the MI-values needs to be plotted
 	genenamesstring = request.GET.get('genes', '') 		# The given list of genes, presented as a string
 	givenpvalue = request.GET.get('pvalue', '') 		# The p-value cutoff for coloring
-	plot_width = request.GET.get('plot_width', '')		# The width of the plot
+	description = request.GET.get('description', '')	# Get the description of the results boolean switch
 
-	# First check if the user has given a screen as input, otherwise raise an error
-	if ((not genenamesstring) or (not screenids)):
-		error=gv.formerror
-		return render(request, 'uniqueref/opengenefinder.html', {'filter':filter, 'error':error})
+	context = {'filter':filter, 'year': datetime.now().year}
+	if not screenids:
+		screenids=authorized_screens
 
 	# Then check if screens requested by the user are actually screens that he/she is allowed to see.
 	# This may seem a bit over the top but a user may have manually changed the URL and has entered a screenid in it
@@ -116,25 +208,26 @@ def opengenefinder(request):
 	# sneak around. First call set_screenids to test whether the given list can be converted into a list of ints.
 	# Finally, also check if the length of the returned array of set_screenids if the list is empty it means
 	# the conversion into a list of ints failed
-	elif (set(cf.set_screenids(screenids)).issubset(set(authorized_screens)) and (len(cf.set_screenids(screenids))>0)):
+	if set(cf.set_screenids(screenids)).issubset(set(authorized_screens)):
 		pvcutoff = cf.set_pvalue(givenpvalue) 								# Check the p-value given by the user
 		screenids_array = cf.set_screenids(screenids)					# Convert list of screens to int
-		genes_array, error = cf.create_genes_array(genenamesstring) 		# Check from given genes which are in DB
+		genes_array, context['error'] = cf.create_genes_array(genenamesstring) 		# Check from given genes which are in DB
 
 		# Need some safety mechanism to prevent people plotting more than a certain numer (max_graphs) at the same time... that's just too much work
 		if (len(genes_array)>gv.max_geneplots):
-			error = gv.max_graphs_warning		# This may overwrite the error message from cf.create_genes_array but that isn't relevant
-			return render(request, 'uniqueref/opengenefinder.html', {'filter':filter, 'error':error})
+			context['error'] = gv.max_graphs_warning		# This may overwrite the error message from cf.create_genes_array but that isn't relevant
 		# Besides people trying to plot more than 50 genes at the same time, there might be people who cannot spell or
 		# enter a list of genes of which none are in the database. The all the above criteria are met, yet a plot cannot
 		# be drawn. Raise an error. The error is already generated by cf.create_genes_array.
-		elif (len(genes_array)==0):
-			return render(request, 'uniqueref/opengenefinder.html', {'filter': filter, 'error': error})
 		else:
-			df = cf.get_df_for_multiple_geneplots(genes_array, screenids_array, pvcutoff, authorized_screens)
-			plotlist = plots.geneplot(df, screenids_array, pvcutoff, plot_width, authorized_screens) # Call single_gene_plots to create a list of plotting objects
-			script, div = plots.vertical_geneplots_layout(plotlist)
-			return render(request, 'uniqueref/opengenefinder.html', {'the_script':script, 'the_div':div, 'filter':filter, 'error':error})
+			df, error, context['text'] = cf.df_multiple_geneplot(genes_array, screenids_array, pvcutoff, authorized_screens)
+			if not df.empty:
+				plotlist = plots.single_gene_plots(df) # Call single_gene_plots to create a list of plotting objects
+				context['script'], context['div'] = plots.vertical_geneplots_layout(plotlist)
+			if error:
+				context['error'] = "".join([context['error'], error])
+			if not description: # If decription is not requested, do not parse it
+				context['text'] = []
 	else:
-		error = gv.request_screen_authorization_error
-		return render(request, 'uniqueref/opengenefinder.html', {'filter':filter, 'error':error})
+		context['error'] = gv.request_screen_authorization_error
+	return render(request, 'uniqueref/opengenefinder.html', context)

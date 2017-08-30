@@ -93,6 +93,7 @@ delete_track_validation_succes = 'You successfully deleted the following tracks'
 delete_track_validation_error = 'You little bastard! It seems you trying to fool me by changing the URL and either trying the remove a track that had already been removed or trying to remove someone else track. Ill watch you!'
 compare_screen_against_itself_error = 'Some people say stupid questions do not exists. Well you just asked one. I refuse do go through a lot of calculations to find out that you are comparing a screen against itself. You do not need me to visualize the resulting plot'
 request_screen_authorization_error = 'OK well this is serious. YOU and I have a problem. It seems you have modified the URL to see data that is not yours. I dont like it at all. Instead of using a POST request I provide you with a GET request so you can easily bookmark, share and quickly modify your complex queries and this is what I get? Just don\'t. I have logged this mischievous attempt and your IP-address.'
+geneplot_no_data = "In our reference database an annotation for the gene(s) %s exists but none of the screens you requested yielded information about them. Possibly the associated genomic region shows too much homology with other regions to be able to unambiguously align insertions to this region, alternatively the genetrap never landed in the region or the knockout is lethal. Click the name of the gene to see it in the UCSC genome browser."
 
 #
 # Links
