@@ -157,36 +157,13 @@ class UpdateHistory(models.Model):
                	verbose_name = 'Changelog'
                 verbose_name_plural = 'changelogs'
 
-class SeqSummary(models.Model):			# A model that holds each indiviual datapoint for intracellular phenotype screens
-	relscreen = models.ForeignKey(Screen)
-	high_dist = models.TextField() # Looks like "[0.16416445990269316, ...,  0.058667589596514823]"
-	high_readsmappedtotophits =  models.TextField() # Looks like "[29356, 882943]"
-	high_topreads_counts = models.TextField() # Looks like "{' TTCCCCCCTTTTTCTGGAGACTAAATAAAATCTTTTATTTTATCGATGCG': 4851039,... }"
-	high_totalmappedreads = models.IntegerField()
-	high_totalreads = models.IntegerField()
-	high_totaltopreads = models.IntegerField()
-	high_totaluniquereads = models.IntegerField()
-	low_dist = models.TextField()
-	low_readsmappedtotophits = models.TextField()
-	low_topreads_counts = models.TextField()
-	low_totalmappedreads = models.IntegerField()
-	low_totalreads = models.IntegerField()
-	low_totaltopreads = models.IntegerField()
-	low_totaluniquereads = models.IntegerField()
-	objects = DataFrameManager()	# Again, needed for django_pandas
-
+class Settings(models.Model):
+	variable_name = models.CharField(max_length=50)
+	value = models.TextField()
+	comment = models.TextField()
 	def __str__(self):
-		return force_bytes('%s' % (self.relscreen))	# Return name of related screen
+		return force_bytes('%s: %s' % (self.variable_name, self.value))
 
 	class Meta:
-		verbose_name = 'Summary of screen sequencing results'
- 		verbose_name_plural = 'summaries of screen sequencing results'
-
-class CustomVariables(models.Model):
-	custom_track_list_for_summary = models.IntegerField()
-	def __str__(self):
-		return force_bytes('%s' % (self.custom_track_list_for_summary))  # Return name of related screen
-
-	class Meta:
-		verbose_name = 'custom variable'
-		verbose_name_plural = 'custom variables'
+		verbose_name = 'Manual setting entry'
+		verbose_name_plural = 'Settings for Phenosaurus'

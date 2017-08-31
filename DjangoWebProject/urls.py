@@ -1,23 +1,21 @@
 """
 Definition of urls for DjangoWebProject.
 """
-from datetime import datetime
 from django.conf.urls import url, handler400, handler403, handler404, handler500
-from uniqueref.forms import BootstrapAuthenticationForm
-import uniqueref.views as aviews
+
 from django.contrib.auth import views
-
-# Serve static files during development
-from django.conf import settings
-from django.conf.urls.static import static
-from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-
-# Uncomment the next lines to enable the admin:
 from django.conf.urls import include
 from django.contrib import admin
+from django.conf import settings
+from uniqueref.admin import phenosaurusadmin
+
+from datetime import datetime
+from uniqueref.forms import BootstrapAuthenticationForm
+import uniqueref.views as aviews
+
 admin.autodiscover()
 
-admin.site.site_header = 'Phenosaurus management tool'
+admin.site.site_header = 'Phenosaurus Command and Control Center'
 
 handler400 = 'uniqueref.views.bad_request'
 handler403 = 'uniqueref.views.permission_denied'
@@ -45,10 +43,10 @@ urlpatterns = [
 
     # Landing page
     url(r'^$', aviews.home, name='home'),
-    url(r'^admin/', include(admin.site.urls)),
     url(r'^contact$', aviews.contact, name='contact'),
     url(r'^about', aviews.about, name='about'),
     url(r'^uniqueref/', include('uniqueref.urls')),
+	url(r'^admin/', phenosaurusadmin.urls),
     url(r'^login/$',
         views.login,
         {
@@ -69,4 +67,4 @@ urlpatterns = [
         name='logout'),
     # Url patterns for password change and reset, see https://docs.djangoproject.com/en/1.10/topics/auth/default/
     url('^', include('django.contrib.auth.urls')),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+]

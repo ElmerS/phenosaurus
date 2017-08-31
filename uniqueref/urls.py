@@ -1,6 +1,7 @@
 from django.conf.urls import url
 import django.contrib.auth.views
 from .views import *
+from .admin import phenosaurusadmin
 
 urlpatterns = [
 	url(r'^$', home, name='home'),

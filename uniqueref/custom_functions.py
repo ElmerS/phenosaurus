@@ -267,7 +267,7 @@ def create_textual_description(gene, current_df, pvcutoff):
     current_text = "In %s screen(s) in human haploid (HAP1) cells %s was found to be regulator." % (
     str(len(pos_screens) + len(neg_screens)), gene)
     if ((len(pos_screens) > 0) or len(neg_screens) > 0):
-        current_text = " ".join([current_text, "Specifically it was found to"])
+        current_text = " ".join([current_text, "Specifically, %s was found to" % gene])
         if (len(pos_screens) == 0):
             current_text = " ".join(
                 [current_text, "negatively affect the abundance of %s" % neg_screen_text])
