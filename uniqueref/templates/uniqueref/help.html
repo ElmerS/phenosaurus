@@ -1,5 +1,14 @@
-{% extends 'uniqueref/base_uniqueref.html' %}
+{% extends 'uniqueref/layout.html' %}
 {% block title %}Documentation{% endblock %}
-{% block base_content %}
-<object data="/static/gettingstarted.pdf" type='application/pdf' width="100%" height="100%"></object>
+
+{% block content %}
+
+<h2>{{ title }}.</h2>
+<h3>{{ message }}</h3>
+{% autoescape off %}{{ descr }}{% endautoescape %}
+<div class="flexible-container">
+    <div class="embed-responsive embed-responsive-4by3">
+      <object data="/static/gettingstarted.pdf" type='application/pdf'></object>
+    </div>
+</div>
 {% endblock %}

@@ -143,7 +143,7 @@ def create_genes_array(input_string, upload=False):
         non_match_list = list(set(input_list) - set(validated_list)) # Find the items that do not match the databse
         url_list = []
         for x in non_match_list:
-            url_list.append(''.join(('<a href=\"', gv.ucsc_link, x, '\"', '>', x, '</a>'))) # The quotation marks before join are the separator, ie. theres is no separator
+            url_list.append(''.join(('<a href=\"', gv.ucsc_link, x.split("@")[0], '\"', '>', x, '</a>'))) # The quotation marks before join are the separator, ie. theres is no separator
         url_list_join = ','.join(url_list) # The genes themself we want to separate by a comma
         suggested_genes = find_somewhat_matching_gene_names(non_match_list)
         error = "%s %s %s<br>%s %s<p>" %(gv.gene_not_found_error, url_list_join, gv.genome_browser_link_text, gv.suggested_genes_text, suggested_genes)
@@ -168,7 +168,6 @@ def convert_geneids_to_genenames(geneids_array):
 
 
 def create_gene_plot_url(relgenestring, authorized_screens):
-    gene_list = relgenestring.split()
     screenids = authorized_qs_screen(authorized_screens).filter(screentype='IP').to_dataframe()['id'].values.tolist()
     screen_part_url = ''
     for i in screenids:
@@ -209,12 +208,17 @@ def generate_df_pips(screenid, pvcutoff, authorized_screens):
 # 3.3: A tiny wee little function to generate a table from all significant hits in the dataframe
 # As this file is actually all about data manipulation and the generate_ps_tophits is more about displaying data, is should be moved at some point to another file dedicated to displaying data
 def generate_ips_tophits_list(df):
-    df_top = df[(df['signame'] != "")]
+    df_top = df[(df['signame'] != "")][['relgene', 'low', 'high', 'fcpv', 'logmi']]
+    df_top.rename(columns={'logmi': 'log2(MI)'}, inplace=True)
+    # Change the relgene column to a url (and remove the part after the @ in case of extended genenames)
+    df_top['relgene'] = '<a href=\"' + gv.ucsc_link + df_top['relgene'].str.split("@", 1).str[0] + '\"' + 'target=\"_blank\"' + '>' + df_top['relgene'] + '</a>'
     if (not df_top.empty):  # We need this because if someone plots a track of which none of the genes is present in the screen it will crash
-        data = df_top[['relgene', 'low', 'high', 'fcpv', 'mi']].sort_values(by='fcpv').to_html(index=False, justify='left')
+        with pd.option_context('display.max_colwidth', -1):
+            negreg = df_top[df_top['log2(MI)']>=0].sort_values(by='log2(MI)', ascending=False).to_html(index=False, justify='left', escape=False)
+            posreg = df_top[df_top['log2(MI)']<0].sort_values(by='log2(MI)').to_html(index=False, justify='left', escape=False)
     else:
-        data = ""
-    return data
+        negreg, posreg = ""
+    return negreg, posreg
 
 
 #############################################################
@@ -222,12 +226,63 @@ def generate_ips_tophits_list(df):
 #############################################################
 
 # This function is once called from single_gene_plots to create a single dataframe containing all genes
-def get_df_for_multiple_geneplots(genes, screenids_array, pvcutoff, authorized_screens):
-    qs_datapoint=authorized_qs_IPSDatapoint(authorized_screens)
-    df = qs_datapoint.filter(relgene__name__in=genes, relscreen_id__in=screenids_array).to_dataframe()[['relgene', 'relscreen', 'mi', 'fcpv']]
-    df['logmi'] = np.log2(df['mi'])
-    df['color'] = np.where(df['fcpv']<=pvcutoff, np.where(df['mi']<1, gv.color_sb, gv.color_st), gv.color_ns)
-    return df
+def df_multiple_geneplot(genes, screenids_array, pvcutoff, authorized_screens):
+    error = ""
+    text = []
+    genes_without_data = []
+    df = pd.DataFrame(columns=['relgene', 'relscreen', 'mi', 'fcpv'])
+    for gene in genes:
+        current_qs_datapoint = authorized_qs_IPSDatapoint(authorized_screens).filter(relgene__name=gene,
+                                                                             relscreen_id__in=screenids_array)
+        if not current_qs_datapoint.exists():
+            genes_without_data.append(gene)
+
+        else:
+            current_df = current_qs_datapoint.to_dataframe()[['relgene', 'relscreen', 'mi', 'fcpv']]
+            current_df['logmi'] = np.log2(current_df['mi'])
+            current_df['color'] = np.where(current_df['fcpv'] <= pvcutoff, np.where(current_df['mi'] < 1, gv.color_sb, gv.color_st),
+                                   gv.color_ns)
+            df = pd.concat([df, current_df])
+            text.append(create_textual_description(gene, current_df, pvcutoff))
+
+    if len(genes_without_data)>0:
+        gene_urls = [''.join(('<a href=\"', gv.ucsc_link, x.split("@")[0], '\"', '>', x, '</a>')) for x in genes_without_data]
+        error = gv.geneplot_no_data % " ".join([str(x) for x in gene_urls])
+
+    return df, error, text
+
+def create_textual_description(gene, current_df, pvcutoff):
+    # Create a textual description for the effect the requested genes
+    pos_screens = current_df[(current_df['fcpv'] <= pvcutoff) & (current_df['mi'] < 1)]['relscreen'].tolist()
+    if len(pos_screens) > 1:
+        pos_screen_text = " and ".join([", ".join(pos_screens[:-1]), pos_screens[-1]])
+    else:
+        pos_screen_text = "".join(pos_screens)
+    neg_screens = current_df[(current_df['fcpv'] <= pvcutoff) & (current_df['mi'] >= 1)]['relscreen'].tolist()
+    if len(neg_screens) > 1:
+        neg_screen_text = " and ".join([", ".join(neg_screens[:-1]), neg_screens[-1]])
+    else:
+        neg_screen_text = "".join(neg_screens)
+
+    current_text = "In %s screen(s) in human haploid (HAP1) cells %s was found to be regulator." % (
+    str(len(pos_screens) + len(neg_screens)), gene)
+    if ((len(pos_screens) > 0) or len(neg_screens) > 0):
+        current_text = " ".join([current_text, "Specifically, %s was found to" % gene])
+        if (len(pos_screens) == 0):
+            current_text = " ".join(
+                [current_text, "negatively affect the abundance of %s" % neg_screen_text])
+        elif (len(neg_screens) == 0):
+            current_text = " ".join(
+                [current_text, "positively affect the abundance of %s" % pos_screen_text])
+        else:
+            current_text = " ".join([
+                current_text,
+                " negatively affect the abundance of %s" % neg_screen_text,
+                "and",
+                "positively affect the abundance of %s" % pos_screen_text
+            ])
+    return current_text
+
 
 def calc_geneplot_width(plot_width, screens):
     if plot_width == 'dynamic':
@@ -241,7 +296,6 @@ def calc_geneplot_width(plot_width, screens):
     else:
         width = gv.normal_geneplot_width
     return width
-
 
 ##########################################################
 # 5. Data acquisition for lists (genes, screens and tracks) #

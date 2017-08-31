@@ -1,55 +1,57 @@
-{% extends 'uniqueref/base_uniqueref.html' %}
+{% extends 'uniqueref/layout.html' %}
 {% block title %}Gene Finder{% endblock %}
-{% block base_content %}
-    <h1> Gene Finder </h1>
-    <form action="/uniqueref/opengenefinder/" method="get">
-		<hr>
-		<table>
-		    <tr>
-		        <td rowspan="9",width="10%"></td>
-		        <td width="15%">Select screen(s)</td>
-                <td colspan="2",width="50%">{{ filter.genes.label_tag }}</td>
+{% block content %}
+<h1>Gene Finder</h1>
+<form action="/uniqueref/opengenefinder/" method="get">
+    {% csrf_token %}
+<div class="panel-group">
+ <div class="panel panel-default">
+     <div class="panel-body">
+         <div class="form-group row">
+             <div class="col-xs-12">
+                 {{ filter.genes.label_tag }}
+                 {{ filter.genes }}
+             </div>
+         </div>
+     </div>
+ </div>
+ <div class="panel panel-default">
+  <div class="panel-heading"><h4 class="panel-title"><a data-toggle="collapse" href="#collapse1">Advanced options</a></h4></div>
+   <div id="collapse1" class="panel-collapse collapse">
+    <div class="panel-body">
+        <div class="form-group row">
+            <div class="col-sm-6">
+                {{ filter.screens.label_tag }}
+                {{ filter.screens }}
+            </div>
+            <div class="col-sm-6">
+                {{ filter.pvalue.label_tag }}<br>
+                {{ filter.pvalue }}<br>
+            </div>
+        </div>
+    </div>
+   </div>
+ </div>
+ <div class="panel panel-default">
+    <div class="panel-body"><input type="submit" class="btn btn-default" value="Submit" />
+    </div>
+ </div>
+</div>
+</form>
 
-                <td rowspan="9",width="10%"></td>
-            </tr>
-            <tr>
-                <td width="15%", rowspan="8">{{ filter.screens }}</div></div></td>
-                <td colspan="2",width="65%">{{ filter.genes }}<p></td>
+{% if error != None %}
+    <h4 style="color:#b30000">{{ error|safe }}</h4>
+{% endif %}
 
-            </tr>
-            <tr>
-            <tr>
-
-            </tr>
-            <tr>
-                <td width="15%">{{ filter.pvalue.label_tag }} </td>
-
-            </tr>
-                <td width="15%">{{ filter.pvalue }}</td>
-            </tr>
-            <tr>
-                <td width="15%"></td>
-                <td width="15%"></td>
-            </tr>
-            <tr>
-                 <td width="15%">{{ filter.plot_width.label_tag }}</td>
-                 <td width="15%"></td>
-             </tr>
-             <tr>
-                <td width="15%"> {{ filter.plot_width }} </td>
-                <td></td>
-            </tr>
-        </table>
-        <hr>
-        <input type="submit" value="Submit" />
-        </form>
-    <table>
-        <tr>
-            <td>{{error|safe}}{{the_script|safe}}{{the_div|safe}}<td>
-        </tr>
-        <tr>
-            <td>{{data | safe}}</td>
-        </tr>
-    </table>
+{% if script != None %}
+<div class="row">
+    <div class="col-md-12">
+        {{script|safe}} {{div|safe}}
+    </div>
+</div>
+{% for t in text %}
+    <p>{{ t|safe }}</p>
+{% endfor %}
+{% endif %}
 {% endblock %}
 

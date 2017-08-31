@@ -7,7 +7,8 @@ from bokeh.models.widgets import Select
 from bokeh.models import HoverTool, TapTool, OpenURL, Circle, Text, CustomJS, FixedTicker, ColumnDataSource, Legend
 from bokeh.models.widgets import TableColumn, DataTable
 from bokeh.embed import components
-from bokeh.layouts import column, layout, Row, Spacer, gridplot
+from bokeh.resources import CDN
+from bokeh.layouts import column, row, layout, Row, Spacer, gridplot
 from bokeh.charts import Bar
 from bokeh.io import vplot, hplot, gridplot
 
@@ -22,6 +23,9 @@ import numpy as np
 import operator
 from math import pi
 import sys
+
+import logging
+from django.conf import settings
 
 ##########################################################
 # 1. Fistail plots                                       #
@@ -54,7 +58,7 @@ def fishtail(title, df, sag, oca, textsize, authorized_screens, legend=pd.DataFr
     )
 
     # This is the place for some styling of the graph
-    p.toolbar_location = 'above'
+    p.toolbar_location = 'below'
     p.outline_line_width = 3
     p.outline_line_alpha = 1
     p.outline_line_color = "black"
@@ -104,6 +108,7 @@ def fishtail(title, df, sag, oca, textsize, authorized_screens, legend=pd.DataFr
         selected_circle = initial_view
         nonselected_circle = initial_view
             
+        #ng = "".join("@relgene".split('@')[:2])
         url = "http://www.genecards.org/cgi-bin/carddisp.pl?gene=@relgene"
         taptool = p.select(type=TapTool)
         taptool.callback = OpenURL(url=url)
@@ -125,8 +130,8 @@ def fishtail(title, df, sag, oca, textsize, authorized_screens, legend=pd.DataFr
         nonselection_glyph=nonselected_circle
     )
 
-
-    script, div = components(p)
+    r = row(children=[p], responsive=True)
+    script, div = components(r, CDN)
     return script, div
 
 
@@ -135,18 +140,22 @@ def fishtail(title, df, sag, oca, textsize, authorized_screens, legend=pd.DataFr
 # 3. Single gene plots (genefinder histogram things)     #
 ##########################################################
 
-def geneplot(multiple_geneplot_df, screenids_array, pvcutoff, plot_width, authorized_screens):
-    TOOLS = "resize,hover,save,pan,box_zoom,reset,tap"
+def single_gene_plots(df_all):
+    # A limited set of tools
+    TOOLS = "resize,save,pan,wheel_zoom,box_zoom,reset,hover"
     # The labels for the x-axis
-    x_range = [str(x[0]) for x in cf.authorized_qs_screen(authorized_screens).filter(id__in=screenids_array).order_by('name').values_list('name')]
+    x_range = [str(screen) for screen in df_all.relscreen.unique()]
     # Now we create a dictionary that uses the genenames to create variables. An sich this is a nice approach but because dictionaries are intrinsically unsorted, the plots will have an unsorted order in which they appear under each other
-    figures = {name: 0 for name in multiple_geneplot_df['relgene']}
+    figures = {str(name): 0 for name in df_all.relgene.unique()}
     # Now we create another empty array, which will hold the actual plotobjects instead of the variables
     # The reason for restructing like this is that bokeh gridplot can only handle an array of plot objects, and certainly not a dict of variables
-    calculated_plot_width = cf.calc_geneplot_width(plot_width, len(x_range))
+    calculated_plot_width = cf.calc_geneplot_width('normal', len(x_range))
     plot_dict = {}
+    print('x-range: ', x_range)
+    print('figures: ', figures)
     for y in figures:
-        df = multiple_geneplot_df[multiple_geneplot_df['relgene']==y]
+        df = df_all[df_all['relgene']==y]
+        print("current df: ", df)
         title=y
         source = ColumnDataSource(df)
         # This gives optimal separation of the datapoints but 0 is not always in the middle (or present at all!)... would that be desirable?
@@ -165,7 +174,10 @@ def geneplot(multiple_geneplot_df, screenids_array, pvcutoff, plot_width, author
             x_range=x_range,
             tools=[TOOLS],
             title=title,
-            min_border_left=100
+            min_border_left=65,
+            min_border_top=45,
+            toolbar_location='above',
+            sizing_mode = 'scale_both'
         )
         figures[y].circle('relscreen', 'logmi', color='color', alpha=1, source=source, size=10)
         figures[y].xaxis.major_label_orientation = pi/4
@@ -174,15 +186,17 @@ def geneplot(multiple_geneplot_df, screenids_array, pvcutoff, plot_width, author
         hover.tooltips = [
             ('P-Value', '@fcpv'),
             ('log(MI)', '@logmi'),
+            ('Screen', '@relscreen'),
         ]
         plot_dict[y]=figures[y]
     return(plot_dict.values())
+
 
 ##########################################################
 # 4. Vertical layout of geneplots                        #
 ##########################################################
 
 def vertical_geneplots_layout(list_of_geneplot_objects):
-    p = layout(children=[[column(list_of_geneplot_objects, sizing_mode='fixed')]], sizing_mode='fixed')
+    p = column(list_of_geneplot_objects, responsive=True)
     script, div = components(p)
     return script, div

@@ -1,19 +1,21 @@
-{% extends 'uniqueref/base_uniqueref.html' %}
+{% extends 'uniqueref/layout.html' %}
 {% block title %}Update History{% endblock %}
-{% block base_content %}
+{% block content %}
+<div class="container">
+    <h1>Update History</h1>
+    <div class="table-responsive">
     <table>
-        <tr>
-            <td><h1>Update History</h1></tr>
-        </tr>
         <tr>
 	    <td>
             {% for update in updates %}
-		<div>
-		<p><h2 style="font-family: 'Noto Sans', sans-serif; color: orange;">{{ update.version }} ({{ update.date}}) </h3></p>
+		    <div>
+		        <p><h2 style="color: orange;">{{ update.version }} ({{ update.date}}) </h2></p>
                	<p>{{ update.changes|safe|linebreaksbr }}</p>
     		</div>
-	     {% endfor %}
+	        {% endfor %}
 	     </td>
         </tr>   
     </table>
+    </div>
+</div>
 {% endblock %}

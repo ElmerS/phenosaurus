@@ -1,0 +1,262 @@
+/* Custom modifications! */
+
+.dropdown-submenu {
+    position: relative;
+}
+
+.dropdown-submenu>.dropdown-menu {
+    top: 0;
+    left: 100%;
+    margin-top: -6px;
+    margin-left: -1px;
+    -webkit-border-radius: 0 6px 6px 6px;
+    -moz-border-radius: 0 6px 6px;
+    border-radius: 0 6px 6px 6px;
+}
+
+.dropdown-submenu:hover>.dropdown-menu {
+    display: block;
+}
+
+.dropdown-submenu>a:after {
+    display: block;
+    content: " ";
+    float: right;
+    width: 0;
+    height: 0;
+    border-color: transparent;
+    border-style: solid;
+    border-width: 5px 0 5px 5px;
+    border-left-color: #ccc;
+    margin-top: 5px;
+    margin-right: -10px;
+}
+
+.dropdown-submenu:hover>a:after {
+    border-left-color: #fff;
+}
+
+.dropdown-submenu.pull-left {
+    float: none;
+}
+
+.dropdown-submenu.pull-left>.dropdown-menu {
+    left: -100%;
+    margin-left: 10px;
+    -webkit-border-radius: 6px 0 6px 6px;
+    -moz-border-radius: 6px 0 6px 6px;
+    border-radius: 6px 0 6px 6px;
+}
+
+.dropdown {
+    position: relative;
+    line-height: 50px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.nav {
+font-size:16px;
+}
+
+.navbar a {
+  color: #999;
+  text-decoration: none;
+}
+
+.nav .caret {
+    border-top-color: #999;
+    border-bottom-color: #999;
+}
+
+.nav .open>a, .nav .open>a:hover, .nav .open>a:focus {
+    background-color: #222;
+    border-color: #222;
+    color: #fff;
+}
+
+.nav a:hover,
+a:focus {
+  color: #fff;
+}
+
+.nav a:hover .caret {
+    border-top-color: #fff;
+    border-bottom-color: #fff;
+}
+
+/* Flexible iFrame for PDF's and plots*/
+
+.flexible-container {
+    position:static;
+    height: 0;
+    overflow: hidden;
+}
+
+.flexible-container iframe,
+.flexible-container object,
+.flexible-container embed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.container-full {
+  margin: 0 auto;
+  width: 100%;
+}
+
+.bk-root {
+    min-heigh: 100px;
+    height: 100px;
+}
+
+.bk-plotdiv {
+    min-height: 100px;
+    height: 100px;
+}
+
+/*.bk-root * { box-sizing: content-box }*/
+
+.container-fluid {
+  width: 100%;
+  min-height: 100%;
+  height: 100% !important;
+}
+
+.row{
+    overflow: hidden;
+    padding-left:15px;
+}
+
+.bk-toolbar-wrapper.bk-layout-null{
+    top: 0px !important;
+}
+
+/******************************/
+/* Standard layout of a table */
+/******************************/
+
+	ul {
+		list-style-type: none;
+	}
+	table {
+		width: 100%;
+		border: 0px solid black;
+		background-color: rgba(0, 0, 0, 0);
+		border-spacing: 1px;
+		padding: 5px;
+	}
+	td {
+		border: 0px solid black;
+		background-color:rgba(0, 0, 0, 0);
+	}
+	.screenblock{
+		overflow-y: scroll;
+		overflow: -moz-scrollbars-vertical;
+		text-aligh: left;
+	}
+	.geneblock {
+		height: 300px;
+		overflow-y: scroll;
+		overflow: -moz-scrollbars-vertical;
+	}
+	.screenlist li {
+		float: left;
+		width: 25%;
+		overflow: scroll
+	}
+	.genelist li {
+		float: left;
+		width: 25%;
+		overflow: scroll;
+		word-break: break-all
+	}
+
+	.remark {
+		font-size: 75%;
+		font-style: italic;
+	}
+
+	body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+/* Set padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Set width on the form input elements since they're 100% wide by default */
+input,
+select,
+textarea {
+    max-width: 280px;
+}
+
+/* styles for validation helpers */
+.field-validation-error {
+    color: #b94a48;
+}
+
+.field-validation-valid {
+    display: none;
+}
+
+input.input-validation-error {
+    border: 1px solid #b94a48;
+}
+
+input[type="checkbox"].input-validation-error {
+    border: 0 none;
+}
+
+.validation-summary-errors {
+    color: #b94a48;
+}
+
+.validation-summary-valid {
+    display: none;
+}
+
+/* Overriding the standard bootstrap jumbotron */
+
+.jumbotron {
+  padding-left: 30px;
+  padding-right: 30px;
+  padding-top: 50px;
+  padding-bottom: 200px;
+  font-size: 21px;
+  font-weight: 200;
+  line-height: 2.1428571435;
+  color: inherit;
+  background-color: #fff;
+  background-image: url("screen.png");
+  background-repeat: no-repeat;
+  background-size: 100%;
+  background-position: center;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  margin-right: 40px;
+  margin-left: 40px;
+}
+
+.frontpagesubjects {
+  margin-top: -100px;
+  margin-right: -15px;
+  margin-left: -15px;
+}
+
+.frontpagesubjects:before,
+.frontpagesubjects:after {
+  display: table;
+  content: " ";
+}
+
+.frontpagesubjects:after {
+  clear: both;
+}

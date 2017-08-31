@@ -1,12 +1,11 @@
-{% extends 'uniqueref/base_uniqueref.html' %}
+{% extends 'uniqueref/layout.html' %}
 {% block title %}List of all genes in the database{% endblock %}
-{% block base_content %}
-    <table>
-        <tr>
-            <td><h1>Genes</h1></tr>
-        </tr>
-        <tr>
-            <td>{{data| safe}}</td>
-        </tr>   
-    </table>
+{% block content %}
+<div class="container">
+    <div class="table-responsive">
+    <h1>Genes in the reference database</h1>
+    {{data| safe}}
+    </div>
+</div>
+
 {% endblock %}
