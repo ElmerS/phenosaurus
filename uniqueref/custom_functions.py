@@ -187,7 +187,7 @@ def create_gene_plot_url(relgenestring, authorized_screens):
 def generate_df_pips(screenid, pvcutoff, authorized_screens):
 
     # Query the datapoints from the database and get all datapoints that match screenid from the QuerySet and create a Dataframe
-    qs_datapoint=authorized_qs_IPSDatapoint(authorized_screens).filter(relscreen_id=screenid).only('relgene', 'fcpv', 'mi', 'insertions')
+    qs_datapoint=authorized_qs_IPSDatapoint(authorized_screens).filter(relscreen_id=screenid).only('relgene', 'fcpv', 'mi', 'insertions', 'low', 'high')
     df_datapoint=qs_datapoint.to_dataframe() #
     df_gene = create_df_gene()
 
@@ -301,7 +301,26 @@ def calc_geneplot_width(plot_width, screens):
 # 5. Data acquisition for lists (genes, screens and tracks) #
 ##########################################################
 
-def list_genes():
-    df = create_df_gene()[['name','chromosome', 'orientation']]
-    data = df.sort_values(by='name').to_html(index=False, justify='left')
-    return data
+def list_genes(authorized_screens):
+    df = create_df_gene()
+
+    # For creating the links to geneplots, get the autorized screens and us
+    screenids = authorized_qs_screen(authorized_screens).filter(screentype='IP').to_dataframe()['id'].values.tolist()
+    screen_part_url = ''
+    for i in screenids:
+        curr_scr = 'screens='+str(i)+'&'
+        screen_part_url = ''.join([screen_part_url, curr_scr])
+    df['urlencoded'] = df['name'].str.replace('+', '%2B') # the '+' sign needs to be encoded to safe ASCII otherwise the GET request does not understand it
+    #df['UCSC Link'] = '<a href=\"' + gv.ucsc_link + df['name'].str.split("@", 1).str[
+    #    0] + '\"' + 'target=\"_blank\"' + '>' + df['name'].str.split("@", 1).str[0] + '</a>'
+    df['name'] = '<a href=\"../opengenefinder/?' + \
+                 'genes=' + \
+                 df['urlencoded'] + \
+                 '&description=true\", ' + \
+                 'target=\"_blank\">' + \
+                 df['name'] + \
+                 '</a>'
+    df = df.drop(['urlencoded', 'id'], 1)
+    with pd.option_context('display.max_colwidth', -1):
+            table = df.sort_values(by='name').to_html(index=False, justify='left', escape=False)
+    return table

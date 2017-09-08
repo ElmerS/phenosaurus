@@ -1,5 +1,5 @@
 {% extends 'uniqueref/layout.html' %}
-{% block title %}Gene Finder{% endblock %}
+{% block title %}{{ title|safe }}{% endblock %}
 {% block content %}
 <h1>Gene Finder</h1>
 <form action="/uniqueref/opengenefinder/" method="get">
@@ -27,6 +27,8 @@
             <div class="col-sm-6">
                 {{ filter.pvalue.label_tag }}<br>
                 {{ filter.pvalue }}<br>
+                {{ filter.hidelegend.label_tag }}<br>
+                {{ filter.hidelegend }}
             </div>
         </div>
     </div>
