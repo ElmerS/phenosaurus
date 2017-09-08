@@ -43,6 +43,8 @@ title_unique_reads_graph = 'Total number of unique sequence reads and mapped rea
 
 pss_highlight_color = '#8c1aff'
 
+legend_background = '#C0C0C0'
+
 
 standard_legend = pd.DataFrame([['pos. regulator', color_sb],['neg. regulator', color_st], ['not significant', color_ns]], columns=['desc', 'color'])
 

@@ -49,6 +49,9 @@
  </div>
 </div>
 </form>
+{% if error %}
+    {{ error|safe }}
+{% endif % }
 
 {% if script != None %}
     {{script|safe}} {{div|safe}}

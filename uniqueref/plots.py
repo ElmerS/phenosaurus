@@ -140,7 +140,7 @@ def fishtail(title, df, sag, oca, textsize, authorized_screens, legend=pd.DataFr
 # 3. Single gene plots (genefinder histogram things)     #
 ##########################################################
 
-def single_gene_plots(df_all):
+def single_gene_plots(df_all, hidelegend=False):
     # A limited set of tools
     TOOLS = "resize,save,pan,wheel_zoom,box_zoom,reset,hover"
     # The labels for the x-axis
@@ -188,7 +188,24 @@ def single_gene_plots(df_all):
             ('log(MI)', '@logmi'),
             ('Screen', '@relscreen'),
         ]
-        plot_dict[y]=figures[y]
+
+        if not hidelegend:
+            legend = Legend(items=[
+                ('Pos. reg', [figures[y].circle(x=0, y=0, color=gv.color_sb)]),
+                ('Neg. reg', [figures[y].circle(x=0, y=0, color=gv.color_st)]),
+                ('Not sign', [figures[y].circle(x=0, y=0, color=gv.color_ns)])],
+                location='top_right'
+            )
+            legend.orientation = 'horizontal'
+            legend.background_fill_alpha = 0.1
+            legend.background_fill_color = gv.legend_background
+            legend.border_line_width = 1
+            legend.border_line_color = "black"
+            legend.border_line_alpha = 0.3
+
+            figures[y].add_layout(legend)
+        plot_dict[y] = figures[y]
+
     return(plot_dict.values())
 
 

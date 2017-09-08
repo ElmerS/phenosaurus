@@ -94,3 +94,5 @@ class OpenGeneFinderForm(forms.Form):
 								widget=forms.NumberInput(attrs={'class': 'form-control'}))
 	description = forms.BooleanField(required=False, label="Text description of results", initial=False,
 								   widget=forms.CheckboxInput(attrs={'class': 'form-checkbox'}))
+	hidelegend = forms.BooleanField(required=False, label="Hide legend", initial=False,
+									 widget=forms.CheckboxInput(attrs={'class': 'form-checkbox'}))
