@@ -1,5 +1,5 @@
 {% extends 'uniqueref/layout.html' %}
-{% block title %}Gene Finder{% endblock %}
+{% block title %}Analyze Intracellular Phenotype Screen{% endblock %}
 {% block content %}
 <h1>Fishtail plot</h1>
 <form action="/uniqueref/simpleplot/" method="get">
@@ -51,7 +51,7 @@
 </form>
 {% if error %}
     {{ error|safe }}
-{% endif % }
+{% endif %}
 
 {% if script != None %}
     {{script|safe}} {{div|safe}}
