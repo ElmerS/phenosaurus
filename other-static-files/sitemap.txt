@@ -19,6 +19,7 @@ https://phenosaurus.nki.nl/uniqueref/simpleplot/?screen=9&oca=gc&sag=on&showtabl
 https://phenosaurus.nki.nl/uniqueref/simpleplot/?screen=1&oca=gc&sag=on&showtable=on
 https://phenosaurus.nki.nl/uniqueref/simpleplot/?screen=7&oca=gc&sag=on&showtable=on
 https://phenosaurus.nki.nl/uniqueref/simpleplot/?screen=4&oca=gc&sag=on&showtable=on
+https://phenosaurus.nki.nl/uniqueref/simpleplot/?screen=17&oca=gc&sag=on&showtable=on
 https://phenosaurus.nki.nl/uniqueref/opengenefinder/
 https://phenosaurus.nki.nl/uniqueref/opengenefinder/?genes=C11orf84&description=true
 https://phenosaurus.nki.nl/uniqueref/opengenefinder/?genes=C11orf85&description=true
