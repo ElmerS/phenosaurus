@@ -67,6 +67,9 @@ class Gene(models.Model):
 	class Meta:
 		verbose_name = 'Gene entry'
  		verbose_name_plural = 'the genes in the database'
+		indexes = [
+			models.Index(fields=['name'])
+		 ]
 
 class Location(models.Model):					# One gene can have multiple, non-overlapping, locations on the (same) chromosome
 	relgene = models.ForeignKey(Gene)
