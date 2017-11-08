@@ -42,7 +42,10 @@ class Screen(models.Model):			# Model for screens
 
 	class Meta:
 		verbose_name = 'Name, descriptions and type of a screen'
- 		verbose_name_plural = 'screens and their individual properties'
+		verbose_name_plural = 'screens and their individual properties'
+		indexes = [
+			models.Index(fields=['name'])
+		]
 
 # A crosstable to store the association between groups (gids) and screens
 class ScreenPermissions(models.Model):
