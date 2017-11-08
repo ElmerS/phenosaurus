@@ -72,7 +72,7 @@ def fishtail(title, df, sag, oca, textsize, authorized_screens, legend=pd.DataFr
     ]            
 
     # Create a ColumnDataSource from the merged dataframa
-    source = ColumnDataSource(df)          
+    source = ColumnDataSource(df[['color', 'linecolor', 'logmi', 'loginsertions', 'relgene', 'fcpv']])
     # Create a new dataframe and source that only holds the names and the positions of datapoints, used for labeling genes
     textsource = ColumnDataSource(data=dict(loginsertions=[], logmi=[], relgene=[]))
     # Define the layout of the circle (a Bokeh Glyph) if nothing has been selected, ie. the inital view
@@ -80,7 +80,8 @@ def fishtail(title, df, sag, oca, textsize, authorized_screens, legend=pd.DataFr
 
     # sag == "on" means that all significant genes needs to be annotated
     if sag == "on":
-        p.text('loginsertions', 'logmi', text='signame', text_color='black', text_font_size=textsize, source=source)
+        sagtextsource = ColumnDataSource(df[df['signame']!=""][['logmi', 'loginsertions', 'signame']])
+        p.text('loginsertions', 'logmi', text='signame', text_color='black', text_font_size=textsize, source=sagtextsource) # This loads more data than needed
     if oca == "hah": # If the 'on click action' is highlight and label
     # Start with creating an empty overlaying plot for the textlabels
         p.text('loginsertions', 'logmi', text='relgene', text_color='black', text_font_size=textsize, source=textsource) # This initally is an empty p because the textsource is empty as long as no hits have been selected
